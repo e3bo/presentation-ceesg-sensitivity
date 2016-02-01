@@ -62,12 +62,38 @@ your data is variance decomposition.
 
 </div>
 
+# Sobol indices $S_{i_1\cdots i_s}$ result from a functional ANOVA
+
+\begin{align}
+f(x) &= f_0 + \sum_i f_i(x_i) + \sum_{i < j} f_{ij}(x_i, x_j) + \cdots \nonumber \\
+ & \quad\qquad + f_{12\cdots n}(x_1, x_2, \ldots, x_n), \nonumber \\
+\int f^2(x) \mathrm{d}x - f^2_0 &= \sum_{x=1}^n \sum_{i_1 < \cdots < i_s}^n \int f^2_{i_1 \cdots i_s} \mathrm{d}x_{i_1} \cdots \mathrm{d} x_{i_s} \nonumber \\
+D &= \sum_{x=1}^n \sum_{i_1 < \cdots < i_s}^n D_{i_1 \cdots i_s} \nonumber \\
+S_{i_1\cdots i_s} &= \frac{D_{i_1 \cdots i_s}}{D} \nonumber
+\end{align}
+
+
 <div class="notes">
 #This par introduces Sobol indices
 
 A standard method of global sensitivity analysis is to decompose the
-variance in a model's output into functions of successively larger
-sets of input variables.
+variance in a model's output into variances of functions of
+successively larger sets of input variables. These equations show how
+the variances result from the initial functional decomposition. The
+function $f$ represents our model and it has $n$ inputs labeled $x_1$
+through $x_n$. With the exception of the $f_0$, the functions on the
+right hand side are constrained to integrate to zero. Then they are
+orthogonal so that squaring both sides of the equation and integrating
+results in the next equation. Each term $D$ in the sum is referred to
+as a variance as if the $x_i$ were random variables. The sobol indices
+for a set of parameters is the proportion of variance they explain
+after accounting for the variance explained by all subsets of the
+parameters. Note that there is no assumption made about the linearity
+of any of the $f$ functions. The main assumptions is that all of their
+squared integrals are finite. These indices are also called global
+sensitivity indices. Sobol is associated with them because he showed
+that they could be estimated via a set of evaluations of $f$.
+
 </div>
 
 <div class="notes">
