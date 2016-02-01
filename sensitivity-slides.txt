@@ -1,0 +1,81 @@
+% An R-based approach to global sensitivity analysis for moments of stochastic models
+% Eamon O'Dea
+% February 3, 2016
+
+<!---
+Goal: After seeing this presentation, people will understand what Sobol indices are, what they are used for, and how to calculate them for both deterministic and stochastic models in R.
+
+Target length: 30 min, 3600--4800 words
+--->
+
+<!---
+This par provides a general definition of sensitivity analysis
+--->
+
+<div class="notes">
+#This par provides a general definition of sensitivity analysis
+
+Sensitivity analysis is a term I often hear people use to mean
+essentially a check that your results do not dramatically change when
+you change your model parameters, but it a has a broader definition.
+
+-sensitivity vs uncertainty
+-local vs global
+
+</div>
+
+<div class="notes">
+#This par introduces Sobol indices
+
+A standard method of global sensitivity analysis is to decompose the
+variance in a model's output into functions of successively larger
+sets of input variables.
+</div>
+
+<div class="notes">
+#This par describes how to calculate Sobol indices in R
+
+The sensitivity package makes calculating Sobol indices in R easy.
+</div>
+
+<div class="notes">
+# This par describes difficulties that occur with stochastic models
+
+Calculating Sobol indices for stochastic models is a bit more complicated.
+</div>
+
+<div class="notes">
+# This par describes the joint metamodeling approach of Marrel et al.
+
+A paper by Marrel and coauthors describes an approach to sensitivity
+analysis for stochastic models.
+</div>
+
+<div class="notes">
+# This par describes how to fit a joint metamodel in R
+
+There are several R packages that assist in fitting a metamodel.
+</div>
+
+<div class="notes">
+# This par describes how to calculate the sobol indices from a metamodel
+
+When the metamodels are fiting sensitivity analysis
+
+</div>
+
+<div class="notes">
+# This par describes how to visualize the metamodel
+
+Often, we'd like to view the metamodel response and data to assess
+goodness of fit and learn more about how the parameters affect the
+response.
+
+</div>
+
+<div class="notes">
+# This par recommends references for further reading
+
+I found several articles very helpful for learning about these methods.
+
+</div>
