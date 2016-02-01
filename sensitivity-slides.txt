@@ -2,14 +2,14 @@
 % Eamon O'Dea
 % February 3, 2016
 
+# Sensitivity analysis is not uncertainty analysis
+
+\includegraphics[width=\textwidth]{sensitivity-vs-uncertainty.png}
+
 <!---
 Goal: After seeing this presentation, people will understand what Sobol indices are, what they are used for, and how to calculate them for both deterministic and stochastic models in R.
 
 Target length: 30 min, 3600--4800 words
---->
-
-<!---
-This par provides a general definition of sensitivity analysis
 --->
 
 <div class="notes">
@@ -17,10 +17,48 @@ This par provides a general definition of sensitivity analysis
 
 Sensitivity analysis is a term I often hear people use to mean
 essentially a check that your results do not dramatically change when
-you change your model parameters, but it a has a broader definition.
+you change your model parameters to account for the fact that you are
+not sure what the best values for them are, but it has a broader
+definition. In fact, you could argue that when used in the sense I
+just described, the goal is to determine the ramifications of
+uncertainty in model parameters on the model output. That type of
+analysis might more accurately be described as uncertainty
+analysis. By contrast, sensitivity analysis can more narrowly be
+defined as determing the relationship between uncertainity in output
+and uncertainty in input. Thus sensitivity analysis could be a
+prerequisite of an uncertainty analysis. However, as the figure shows,
+the outcome of your uncertainty analyis depends on both model
+sensitivity and uncertainty in the inputs. If the range of inputs
+differ, a model with low sensitivity can have greater uncertainty in
+the output than a model with high sensitivity. Sensitivity is a
+property of the model itself and could be used for things besides
+uncertainty analysis such as a powers analysis (if your model output
+is a test statistic) or a model reduction procedure. In this example
+the sensitivity did not depend on the inputs but in general that is of
+course not the case.
 
--sensitivity vs uncertainty
--local vs global
+</div>
+
+# Local sensitivity analysis is not global sensitivity analysis
+
+\includegraphics[width=\textwidth]{local-vs-global.png}
+
+<div class="notes">
+#This par provides a general definition of global sensitivity analysis
+
+A sensitivity analysis that measures the variation in uncertainty in
+outputs over a range of inputs rather than at a particular point in
+parameter space is known as a global sensitivity analysis. As the
+figures demonstrate global and local sensitivities may differ
+dramatically. Thus a local analysis may not be appropriate if you are
+interested in the sensitivity of a model over a range of input space
+rather than at a point. I typically associated sensitivity analysis
+with an elasticity analysis which essentially just calculates the
+gradient of your model at a point and is a local method. There are a
+variety of global methods available. They include making scatter
+plots, regression modelling, and partially ranked correlation
+coefficients. One approach that makes relatively few assumptions about
+your data is variance decomposition.
 
 </div>
 
@@ -36,31 +74,57 @@ sets of input variables.
 #This par describes how to calculate Sobol indices in R
 
 The sensitivity package makes calculating Sobol indices in R easy.
+
+- decoupling
+
+So as usual, if you are working with deterministic models, your life
+is easier. However, also as usual, with some work we can do a similar
+analysis for a stochastic model.
+
 </div>
 
 <div class="notes">
 # This par describes difficulties that occur with stochastic models
 
 Calculating Sobol indices for stochastic models is a bit more complicated.
+
+
+- memory use can be an issue, can try parallelziation
+
+A general solution to these problems is to fit the original
+simulations to a metamodel and then perform sensitivity analysis of
+that metamodel.
+
 </div>
 
 <div class="notes">
 # This par describes the joint metamodeling approach of Marrel et al.
 
-A paper by Marrel and coauthors describes an approach to sensitivity
-analysis for stochastic models.
+A paper by Marrel and coauthors describes in detail one way to go about this.
+
+The paper does not include any R code but I did find R packages that
+had functions designed to carry out most of the major steps of the
+method.
+
 </div>
 
 <div class="notes">
 # This par describes how to fit a joint metamodel in R
 
-There are several R packages that assist in fitting a metamodel.
+The Dice suite of packages assists in fitting a metamodel.
 </div>
 
 <div class="notes">
 # This par describes how to calculate the sobol indices from a metamodel
 
-When the metamodels are fiting sensitivity analysis
+When the metamodels are fitted, calculating the sensitivity indices
+according to the equations of Marrel and coauthors can again be done
+with the sobol function.
+
+
+These sobol indices can be examined along with visualization of the
+metamodel to provide insight into the major relationships of the
+model.
 
 </div>
 
@@ -71,11 +135,27 @@ Often, we'd like to view the metamodel response and data to assess
 goodness of fit and learn more about how the parameters affect the
 response.
 
+When only a few, low-rank sobol indices explain most of the variance,
+you can summarize the model with a few plots.
+
+</div>
+
+<div class="notes">
+
+# This par summarizes the presentation
+
+In summary, we've seen what Sobol indices are, what they are used for,
+and how to calculate them for both deterministic and stochastic models
+in R.
+
+
+I found several articles very helpful for learning about these methods.
 </div>
 
 <div class="notes">
 # This par recommends references for further reading
 
-I found several articles very helpful for learning about these methods.
+Here's lists of references to both the theory and software.
+
 
 </div>
