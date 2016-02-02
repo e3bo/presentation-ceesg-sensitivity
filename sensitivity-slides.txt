@@ -99,10 +99,13 @@ that they could be estimated via a set of evaluations of $f$.
 <div class="notes">
 #This par describes how to calculate Sobol indices in R
 
+- formulas for estimators
+
 The sensitivity package makes calculating Sobol indices in R easy.
 
+- quasi monte carlo
 - decoupling
-
+- list of use cases
 So as usual, if you are working with deterministic models, your life
 is easier. However, also as usual, with some work we can do a similar
 analysis for a stochastic model.
