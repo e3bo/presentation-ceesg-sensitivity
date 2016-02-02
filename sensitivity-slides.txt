@@ -204,11 +204,14 @@ $S_y^{tot}$ is small. As you can see, it would not be too difficult to write you
 <div class="notes">
 #This pair describes how to calculate Sobol indices in R
 
+- formulas for estimators
+
 The sensitivity package makes calculating Sobol indices in R easy.
 
 - transformation to unit cube
+- quasi monte carlo
 - decoupling
-
+- list of use cases
 So as usual, if you are working with deterministic models, your life
 is easier. However, also as usual, with some work we can do a similar
 analysis for a stochastic model.
