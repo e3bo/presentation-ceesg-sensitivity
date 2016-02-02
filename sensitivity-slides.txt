@@ -7,7 +7,10 @@
 \includegraphics[width=\textwidth]{sensitivity-vs-uncertainty.png}
 
 <!---
-Goal: After seeing this presentation, people will understand what Sobol indices are, what they are used for, and how to calculate them for both deterministic and stochastic models in R.
+
+Goal: After seeing this presentation, people will understand what
+Sobol indices are, what they are used for, and how to calculate them
+for both deterministic and stochastic models in R.
 
 Target length: 30 min, 3600--4800 words
 --->
@@ -106,8 +109,12 @@ D_y &= \sum_{s=1}^m \sum_{\{i_1 < \cdots < i_s\} \in K} D_{i_1 \cdots i_s}.
 \end{align*}
 Then
 \begin{align*}
-&\frac{1}{N} \sum_{j=1}^N f(\xi_j) \xrightarrow{P} f_0, \qquad \frac{1}{N} \sum_{j=1}^N f(\xi_j) f(\eta_j, \zeta'_j) \xrightarrow{P} D_y + f_0^2, \\
-&\frac{1}{N} \sum_{j=1}^N f^2(\xi_j) \xrightarrow{P} D + f_0^2, \qquad \frac{1}{N} \sum_{j=1}^N f(\xi_j) f(\eta'_j, \zeta_j) \xrightarrow{P} D_z + f_0^2.
+&\frac{1}{N} \sum_{j=1}^N f(\xi_j) \xrightarrow{P} f_0, \qquad
+\frac{1}{N} \sum_{j=1}^N f(\xi_j) f(\eta_j, \zeta'_j) \xrightarrow{P}
+D_y + f_0^2, \\
+&\frac{1}{N} \sum_{j=1}^N f^2(\xi_j) \xrightarrow{P} D + f_0^2, \qquad
+\frac{1}{N} \sum_{j=1}^N f(\xi_j) f(\eta'_j, \zeta_j) \xrightarrow{P}
+D_z + f_0^2.
 \end{align*}
 
 <div class="notes">
@@ -145,8 +152,6 @@ S_{ij} &= S_y - S_i - S_j \nonumber
 \end{align*}
 
 <div class="notes">
-
-
 
 Once the $D_y$ are estimated, calculation of Sobol indices is
 straightforward. If $y$ contains a single input variable, then the
@@ -195,20 +200,99 @@ an interaction with any other variables. This index can be used to
 bound the probability of an error between the full model and a model
 with the variables in $y$ fixed to a constant. More simply, you might
 conclude that the model is not sensitive to variables in $y$ if
-$S_y^{tot}$ is small. As you can see, it would not be too difficult to write your own software to calculate these indices. However, there is a well-developed R package available that makes it even easier.
+$S_y^{tot}$ is small. As you can see, it would not be too difficult to
+write your own software to calculate these indices. However, there is
+a well-developed R package available that makes it even easier.
+
 </div>
 
+# Minimal example of calculating Sobol indices
 
+    > model <- function(X) X[, 1]*X[, 2] + X[, 3]
+    > N <- 1000
+    > X1 <- data.frame(matrix(runif(3 * N), nrow = N))
+    > X2 <- data.frame(matrix(runif(3 * N), nrow = N))
+    > sensitivity::sobol(model = model, X1 = X1, X2 = X2)
 
+    Call:
+    sensitivity::sobol(model = model, X1 = X1, X2 = X2)
+
+    Model runs: 4000
+
+    Sobol indices
+	original
+    X1 0.2772898
+    X2 0.3252903
+    X3 0.7352620
+
+# Getting bootstrap confidence intervals
+
+    > sobol(model = model, X1 = X1, X2 = X2, nboot=500)
+
+    Call:
+    sobol(model = model, X1 = X1, X2 = X2, nboot = 500)
+
+    Model runs: 4000
+
+    Sobol indices
+	original          bias std. error   min. c.i. max. c.i.
+    X1 0.1445575 -0.0006627282 0.09726050 -0.04670249 0.3348154
+    X2 0.1307615  0.0047526522 0.09627432 -0.06896922 0.3320874
+    X3 0.5338514  0.0034530365 0.06917633  0.38719837 0.6674093
+
+# You can calculate all indices up to a given order
+
+    > sobol(model = model, X1 = X1, X2 = X2, order=2)
+
+    Call:
+    sobol(model = model, X1 = X1, X2 = X2, order = 2)
+
+    Model runs: 7000
+
+    Sobol indices
+	    original
+    X1    0.14455747
+    X2    0.13076148
+    X3    0.53385138
+    X1*X2 0.13273744
+    X1*X3 0.06257828
+    X2*X3 0.06257828
+
+# You can calculate variances for any group of indices
+
+    > order <- list(1, 2, c(1,2))
+    > sobol(model = model, X1 = X1, X2 = X2, order=order)$V
+	     original
+    global 0.12970985
+    X1     0.01875053
+    X2     0.01696105
+    X1*X2  0.05292894
+    > c(.0529 - .0187 - .0169)/ .1297 # recalculate S_12
+    [1] 0.1333847
+    > 1 - .0529 / .129 # estimate S^tot_3
+    [1] 0.5899225
 
 <div class="notes">
-#This pair describes how to calculate Sobol indices in R
+#This par describes how to calculate Sobol indices in R
 
-- formulas for estimators
+The sensitivity package makes calculating Sobol indices in R easy. You
+first create two data frames containing samples of points within your
+input parameter space. Then provides these along with your model to
+the sobol function in the sensitivity package. Your model can be a
+vectorized function, as show here, or a model object with a predict
+method. By default, all first order indices are estimated. The number
+of model runs is $ N (# indices + 1)$.
 
-The sensitivity package makes calculating Sobol indices in R easy.
+Basic bootstrap confidence intervals and standard errors can be
+obtained by supplying the number of resampling replicates you would like.
 
-- transformation to unit cube
+Higher order sobol indices can be obtained via the order argument.
+
+You can use the order to obtain $S_y$ for custom subsets $y$. The
+output variable $V$ corresponds to the $D$ in our equations. Thus we
+can check the previous calculation of $S_12$ and also obtain an
+estimate of $S^tot_3$.
+
 - quasi monte carlo
 - decoupling
 - list of use cases
