@@ -293,12 +293,63 @@ output variable $V$ corresponds to the $D$ in our equations. Thus we
 can check the previous calculation of $S_12$ and also obtain an
 estimate of $S^tot_3$.
 
+We've now covered all of the basic calculations of Sobol indices. You
+can see this is quite easy if your model is an R function. However, if
+you have developed a complicated model, there's a good chance you have
+worked outside of R. Fortunately, it is still easy to use this
+function with external models.
+
+</div>
+
+# Models outside of R can be used via the decoupling feature
+
+    > S <- sobol(model = NULL, X1 = X1, X2 = X2)
+    > y <- model(S$X) # could instead call external program
+    > tell(S, y)
+    > S
+
+    Call:
+    sobol(model = NULL, X1 = X1, X2 = X2)
+
+    Model runs: 4000
+
+    Sobol indices
+	original
+    X1 0.1445575
+    X2 0.1307615
+    X3 0.5338514
+
+<div class="notes">
+
+# This par describes the decoupling facility
+
+The sensitivity package includes what the documentation calls
+decoupling to handle such a situation. To use it, you specify NULL as
+your model when you call Sobol. This returns an object that has an
+element X with the design of input points needed to calculate the
+Sobol indices. You can generate a vector that contains the results of
+your model calls on these inputs in whatever way, and then provide it
+along with your sobol object to the tell() function to complete the
+calculation of the Sobol indices. Even if your model is coded in R,
+this decoupling feature can also serve as a useful point to
+parallelize your model evaluations over multiple cores. For additional
+performance, you may also want to provide avoid using a uniform sample
+of input points.
+
+</div>
+
+<div class="notes">
+
+# This par describe reasons to use quasi-monte carlo sequence
+
 - quasi monte carlo
-- decoupling
-- list of use cases
+- sobol sequence
+
 So as usual, if you are working with deterministic models, your life
 is easier. However, also as usual, with some work we can do a similar
 analysis for a stochastic model.
+
+
 
 </div>
 
@@ -367,6 +418,7 @@ In summary, we've seen what Sobol indices are, what they are used for,
 and how to calculate them for both deterministic and stochastic models
 in R.
 
+- rehash list of use cases
 
 I found several articles very helpful for learning about these methods.
 </div>
