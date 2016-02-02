@@ -96,11 +96,117 @@ that they could be estimated via a set of evaluations of $f$.
 
 </div>
 
+# Estimators for variances of partitions $y$ and $z$ of variables
+Let
+\begin{align*}
+K &= \{k_1, \ldots, k_m\}, \\
+y &= \{x_{k_1}, \ldots, x_{k_m}\}, \\
+z &= \{x_1, \ldots, x_n\} \setminus y \\
+D_y &= \sum_{s=1}^m \sum_{\{i_1 < \cdots < i_s\} \in K} D_{i_1 \cdots i_s}.
+\end{align*}
+Then
+\begin{align*}
+&\frac{1}{N} \sum_{j=1}^N f(\xi_j) \xrightarrow{P} f_0, \qquad \frac{1}{N} \sum_{j=1}^N f(\xi_j) f(\eta_j, \zeta'_j) \xrightarrow{P} D_y + f_0^2, \\
+&\frac{1}{N} \sum_{j=1}^N f^2(\xi_j) \xrightarrow{P} D + f_0^2, \qquad \frac{1}{N} \sum_{j=1}^N f(\xi_j) f(\eta'_j, \zeta_j) \xrightarrow{P} D_z + f_0^2.
+\end{align*}
+
 <div class="notes">
-#This par describes how to calculate Sobol indices in R
+#This par describes the estimation method for $D_y$
+
+Although several estimation methods exist, the following estimation
+method is a standard one. Let $K$ be a subset of indices for the input
+parameters of $f$. Let $y$ be the set of variables having these
+indices and $z$ be the rest of the variables. Let $\xi_j$ and $\xi'_j$
+be the $j$th members of two independently sampled sets of points from
+the unit cube corresponding to the input parameters. $\eta$ and
+$\zeta$ are the subsets of the coordinates that correspond to $y$ and
+$z$. It follows from the earlier decomposition of $f$ that as the
+number of samples $N$ grows, the probability that any of these
+estimates for variances have a given error approaches zero. Note,
+however, that these variance are actually sums of the variances needed
+to calculate Sobol indices for individual variables.
+
+</div>
+
+# Sobol indices follow from $D_y$
+
+Example: $y = \{x_i\}$, set of a single variable
+\begin{align*}
+S_y &= D_y / D \\
+S_i &= S_y
+\end{align*}
+
+# Sobol indices follow from $D_y$
+
+Example: $y = \{x_i,x_j\}$, set of two variables
+\begin{align*}
+S_y &= D_y / D \\
+S_{ij} &= S_y - S_i - S_j \nonumber
+\end{align*}
+
+<div class="notes">
+
+
+
+Once the $D_y$ are estimated, calculation of Sobol indices is
+straightforward. If $y$ contains a single input variable, then the
+quotient $D_y / D$ yields the Sobol index for that variables. If $y$
+contains a pair of inputs, then $D_z / D$ less the individual Sobol
+indices for members of the pair yield the Sobol index for the
+pair. Remember, this index measures the contribution of this pair of
+variables to variation in the output indepently of the univariate
+contributions of each variables. You might think of it as determing
+the sensitivity of the interaction of this pair of variables. If you
+would like to know the sensitivity of one variable and all of its
+interactions with all variables, you can calculate a total Sobol
+index.
+
+</div>
+
+
+# Total Sobol indices follow from $D_z$
+
+Example: $y = \{x_i\}$, set of a single variable
+\begin{align*}
+S_z &= D_z / D \\
+S_i^{\textrm{tot}} &= 1 - S_z
+\end{align*}
+
+# Total Sobol indices follow from $D_z$
+
+Example: $y = \{x_i,x_j\}$, set of two variables
+\begin{align*}
+S_z &= D_z / D \\
+S_y^{\textrm{tot}} &= 1 - S_z
+\end{align*}
+
+<div class="notes">
+
+# This par. describes estimation of total Sobol indices
+
+The $D_z$ are used in the calculation of total Sobol indices. For a
+single variable, the total Sobol index is simply $1 - D_z / D$. I'm
+not sure if it is common to calculate the total Sobol index for the
+interaction between a pair of variables. What is described in Sobol's
+2001 paper is the total index for a set of variables, which is again
+$1 - D_z / D$. It determines the variance in the function output that
+is due to all variables in the set, whether by themselves or through
+an interaction with any other variables. This index can be used to
+bound the probability of an error between the full model and a model
+with the variables in $y$ fixed to a constant. More simply, you might
+conclude that the model is not sensitive to variables in $y$ if
+$S_y^{tot}$ is small. As you can see, it would not be too difficult to write your own software to calculate these indices. However, there is a well-developed R package available that makes it even easier.
+</div>
+
+
+
+
+<div class="notes">
+#This pair describes how to calculate Sobol indices in R
 
 The sensitivity package makes calculating Sobol indices in R easy.
 
+- transformation to unit cube
 - decoupling
 
 So as usual, if you are working with deterministic models, your life
