@@ -333,33 +333,121 @@ along with your sobol object to the tell() function to complete the
 calculation of the Sobol indices. Even if your model is coded in R,
 this decoupling feature can also serve as a useful point to
 parallelize your model evaluations over multiple cores. For additional
-performance, you may also want to provide avoid using a uniform sample
-of input points.
+performance, you may also want try using a low discrepancy sequence
+instead of random uniform sampling. By avoiding sampling points that
+are close to each other, faster rates of convergence are often
+realized. Another performance enhancing strategy is to first train a
+simple statistical model on your full model. This statistical model is
+called a metamodel. The sobol indices are then calculated from the
+metamodel. The reason to do this is that you may be able to fit the
+metamodel from a much smaller number of observations than you need to
+calculate the Sobol indices to desired accuracy. You may need to run
+your model about 10,000 times to per index to obtain estimates of
+Sobol indices to within 5% of the true value. The metamodel runs
+faster than your full simulation model so that you can obtain such
+precise estimates more quickly. Metamodels are also useful for
+applying sensitivity analysis to stochastic models.
 
 </div>
 
+# Challenges for calculating Sobol indices for stochastic models
+
+1. Flexible metamodels needed for mean and variance of stochastic
+model
+2. Mean and variance may not be independent of each other
+3. Extend Sobol indices to stochastic models
+
+# Case study: model of disease spread among swine farms
+
+\includegraphics[width=\textwidth]{farms-per-approx-16000-km-side-cell.png}
+
+# The DiceEval package eases comparison of  metamodels
+
+    library(DiceEval)
+    mc <- modelComparison(X.train, Y.train,
+              type=c('StepLinear', 'Additive',
+                     'PolyMARS', 'MARS'),
+              test=testdf, penalty=2, degree=2, gcv=4,
+              formula=Y~.)
+
+# The DiceEval package eases comparison of  metamodels
+
+\includegraphics[width=\textwidth]{model-comparison.png}
+
+# Kriging models had best performance and were even better with some fine tuning
+
+    GetKm <- function(X, Y, ...){
+      control <- list(max.generations=100,
+                      control=list(maxit=1e3))
+      DiceEval::modelFit(X=X, Y=Y, type='Kriging', ...,
+                         covtype='matern3_2',
+                         control=control, optim.method='gen')
+    }
+    km.train <- GetKm(X=X.train, Y=Y.train, formula=~.,
+                      nugget.estim=TRUE, nugget=1e-7)
+
+# Marrel et al.'s scheme for estimating mean and variance jointly
+
+0. Create design without replication
+1. Fit model km1 to mean with nugget effect
+2. Fit model kv1 to residuals with nugget effect
+3. Fit model km2 to mean with nugget based on kv1
+4. Fit model kv2 to residuals from km2
+
+# How to get residuals from nugget estimate
+
+    GetPredNuggetAsNoise <- function(mod){
+      noise.var <- rep(mod@covariance@nugget, len=nrow(mod@X))
+      mpred <- km(mod@trend.formula, design=mod@X,
+                  response=mod@y,
+                  covtype=mod@covariance@name,
+                  coef.cov=covparam2vect(mod@covariance),
+                  coef.trend=mod@trend.coef,
+                  coef.var=mod@covariance@sd2,
+                  noise.var=noise.var)
+      predict(mpred, newdata=mod@X, type='UK', se.fit=FALSE,
+              light.return=TRUE)$mean
+    }
+
+# Then implementing the scheme is easy
+
+    km.m1 <- GetKm(X=X, Y=Y, formula=~., nugget.estim=TRUE,
+                   nugget=1e-7)
+    Y.km.m1 <- GetPredNuggetAsNoise(km.m1$model)
+    Yres2.m1 <- (Y - Y.km.m1)^2
+    km.v1 <- GetKm(X=X, Y=Yres2.m1, formula=~1,
+                   nugget.estim=TRUE)
+    Y.km.v1 <- GetPredNuggetAsNoise(km.v1$model)
+    Yres.v1 <- Yres2.m1 - Y.km.v1
+    noise.var <- ifelse(Y.km.v1 < 0, 0, Y.km.v1)
+    km.m2 <- GetKm(X=X, Y=Y, formula=~., noise.var=noise.var)
+    Y.km.m2 <- DiceEval::modelPredict(km.m2, newdata=X)
+    Yres2.m2 <- (Y - Y.km.m2)^2
+    var.m2 <- mean(Yres2.m2)
+
+# Extension of Sobol indices to stochastic models
+
+- Total variance is sum of variance for mean metamodel and mean of
+  variance metamodel
+- Sobol indices for non-seed variables may be calculated using this
+  total variance
+- Total Sobol index for random seed is mean of variance metamodel over
+  total variance
+
+# Summary
+
+- Sensitivity analyis has many uses
+- Global sensitivity analysis may be done easily in R
+- Analysis of stochastic models possible with a little more work
+
 <div class="notes">
 
-# This par describe reasons to use quasi-monte carlo sequence
-
-- quasi monte carlo
-- sobol sequence
-
-So as usual, if you are working with deterministic models, your life
-is easier. However, also as usual, with some work we can do a similar
-analysis for a stochastic model.
-
-
-
-</div>
-
-<div class="notes">
 # This par describes difficulties that occur with stochastic models
 
 Calculating Sobol indices for stochastic models is a bit more complicated.
 
 
-- memory use can be an issue, can try parallelziation
+
 
 A general solution to these problems is to fit the original
 simulations to a metamodel and then perform sensitivity analysis of
