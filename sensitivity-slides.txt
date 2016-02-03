@@ -70,8 +70,8 @@ your data is variance decomposition.
 \begin{align}
 f(x) &= f_0 + \sum_i f_i(x_i) + \sum_{i < j} f_{ij}(x_i, x_j) + \cdots \nonumber \\
  & \quad\qquad + f_{12\cdots n}(x_1, x_2, \ldots, x_n), \nonumber \\
-\int f^2(x) \mathrm{d}x - f^2_0 &= \sum_{x=1}^n \sum_{i_1 < \cdots < i_s}^n \int f^2_{i_1 \cdots i_s} \mathrm{d}x_{i_1} \cdots \mathrm{d} x_{i_s} \nonumber \\
-D &= \sum_{x=1}^n \sum_{i_1 < \cdots < i_s}^n D_{i_1 \cdots i_s} \nonumber \\
+\int f^2(x) \mathrm{d}x - f^2_0 &= \sum_{s=1}^n \sum_{i_1 < \cdots < i_s}^n \int f^2_{i_1 \cdots i_s} \mathrm{d}x_{i_1} \cdots \mathrm{d} x_{i_s} \nonumber \\
+D &= \sum_{s=1}^n \sum_{i_1 < \cdots < i_s}^n D_{i_1 \cdots i_s} \nonumber \\
 S_{i_1\cdots i_s} &= \frac{D_{i_1 \cdots i_s}}{D} \nonumber
 \end{align}
 
@@ -394,6 +394,7 @@ model
 3. Fit model km2 to mean with nugget based on kv1
 4. Fit model kv2 to residuals from km2
 
+
 # How to get residuals from nugget estimate
 
     GetPredNuggetAsNoise <- function(mod){
@@ -439,6 +440,13 @@ model
 - Sensitivity analyis has many uses
 - Global sensitivity analysis may be done easily in R
 - Analysis of stochastic models possible with a little more work
+
+# Main sources
+
+- Sobol'. Global sensitivity indices for nonlinear mathematical models and their Monte Carlo estimates.
+- Marrel, Iooss, Da Veiga, Ribatet. Global sensitivity analysis of stochastic computer models with joint metamodels.
+- Roustant, Ginsbourger, Deville. DiceKriging, DiceOptim: Two R Packages for the Analyis of Computer Experiments by Kriging Based Metamodeling and Optimization.
+- Dupuy, Helbert, Franco. DiceDesign and DiceEval: Two R Packages for Design and Analysis of Computer Experiments
 
 <div class="notes">
 
